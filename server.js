@@ -1,7 +1,7 @@
 var express = require('express'),
     stylus = require('stylus'),
     bodyParser = require('body-parser'),
-    log = require('libs/log')(module),
+    log = require('./libs/log')(module),
     mongoose = require('mongoose');
 
 
@@ -36,12 +36,21 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function callback () {
    log.info('multivision connection is opened');
 });
-
-app.get('/partials/:partialPath',function(req,res){
-    res.render('partials/'+ req.params.partialPath);
+var messageSchema = mongoose.Schema({message:String});
+var Message = mongoose.model('Message',messageSchema);
+var mongoMessage;
+Message.findOne().exec(function(err, messageDoc){
+   mongoMessage = messageDoc.message;
 });
-app.get('*', function(req, res) {
-    res.render('index');
+
+app.get('/partials/*',function(req,res){
+//    res.render('partials/'+ req.params[0]);
+    res.render('../../public/app/'+ req.params[0]);
+    log.info('req.params 0 : '+req.params[0]);
+});
+
+app.get('*',function(req,res){
+   res.render('index');
 });
 
 var port = 3030;
